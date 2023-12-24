@@ -1,0 +1,88 @@
+services:
+ mongo-appointments:
+  image: mongo:latest
+  ports:
+    - 27017:27017
+  volumes:
+    - mongodb_appointment_data:/data/db
+    
+ mysql-user:
+  image: mysql:latest
+  ports:
+    - 3306:3306
+  volumes:
+    - mysql_user_data:/var/lib/mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: abc123
+    
+ mysql-notification:
+  image: mysql:latest
+  ports:
+    - 3307:3306
+  volumes:
+    - mysql_notification_data:/var/lib/mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: abc123
+    
+ appointment-service:
+  depends_on:
+    - mongo-appointments
+  image: chadiai/appointment-service
+  ports:
+    - 8080:8080
+  links:
+    - mongo-appointments
+  environment:
+   MONGODB_PORT: 27017
+   MONGODB_HOST: mongo-appointments
+   
+ notification-service:
+  depends_on:
+    - mysql-notification
+  image: chadiai/notification-service
+  ports:
+    - 8082:8082
+  links:
+    - mysql-notification
+  environment:
+   MYSQL_DB_USERNAME: root
+   MYSQL_DB_PASSWORD: abc123
+   MYSQL_DB_HOST: mysql-notification
+   MYSQL_DB_PORT: 3307
+
+ user-service:
+  depends_on:
+    - appointment-service
+    - notification-service
+  image: chadiai/user-service
+  ports:
+    - 8081:8081
+  links:
+    - appointment-service
+    - notification-service
+  environment:
+   PRODUCT_SERVICE_BASEURL: appointment-service:8080
+   INVENTORY_INFO_SERVICE_BASEURL: notification-service:8082
+   MYSQL_DB_USERNAME: root
+   MYSQL_DB_PASSWORD: abc123
+   MYSQL_DB_HOST: mysql-user
+   MYSQL_DB_PORT: 3306
+
+ api-gateway:
+   depends_on:
+     - appointment-service
+     - user-service
+   image: chadiai/ede-api-gateway
+   ports:
+     - 8083:8083
+   links:
+     - appointment-service
+     - user-service
+   environment:
+     PRODUCT_SERVICE_BASEURL: appointment-service:8080
+     ORDER_SERVICE_BASEURL: user-service:8081
+
+volumes:
+ mongodb_appointment_data:
+ mysql_notification_data:
+ mysql_user_data:
