@@ -12,23 +12,23 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: product-service
-          uri: http://${PRODUCT_SERVICE_BASEURL:localhost:8080}
+        - id: appointment-service
+          uri: http://${APPOINTMENT_SERVICE_BASEURL:localhost:8080}
           predicates:
-            - Path=/products
+            - Path=/appointments
             - Method=POST
           filters:
-            - SetPath=/api/product
-        - id: product-service-all
-          uri: http://${PRODUCT_SERVICE_BASEURL:localhost:8080}
+            - SetPath=/api/appointment
+        - id: appointment-service-all
+          uri: http://${APPOINTMENT_SERVICE_BASEURL:localhost:8080}
           predicates:
-            - Path=/products
+            - Path=/appointment
             - Method=GET
           filters:
-            - SetPath=/api/product/all
-        - id: order-service
-          uri: http://${ORDER_SERVICE_BASEURL:localhost:8081}
+            - SetPath=/api/appointment/all
+        - id: notification-service
+          uri: http://${NOTIFICATION_SERVICE_BASEURL:localhost:8081}
           predicates:
-            - Path=/orders
+            - Path=/notifications
           filters:
-            - SetPath=/api/order
+            - SetPath=/api/notification

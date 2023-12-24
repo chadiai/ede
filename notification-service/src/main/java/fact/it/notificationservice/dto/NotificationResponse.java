@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class InventoryResponse {
-    private String skuCode;
-    private boolean isInStock;
+public class NotificationResponse {
+    private String userId;
+    private String message;
+    private boolean unread;
 }

@@ -1,6 +1,6 @@
 package fact.it.notificationservice.controller;
 
-import fact.it.notificationservice.dto.InventoryResponse;
+import fact.it.notificationservice.dto.NotificationResponse;
 import fact.it.notificationservice.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,17 +9,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/inventory")
+@RequestMapping("/api/notification")
 @RequiredArgsConstructor
-public class InventoryController {
+public class NotificationController {
 
     private final NotificationService notificationService;
-
-    // http://localhost:8082/api/inventory?skuCode=tube6in&skuCode=beam10ft
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<InventoryResponse> isInStock
-    (@RequestParam List<String> skuCode) {
-        return notificationService.isInStock(skuCode);
+    public List<NotificationResponse> isUnread
+    (@RequestParam boolean bool) {
+        return notificationService.isUnread(bool);
     }
 }

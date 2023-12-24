@@ -3,7 +3,6 @@ package fact.it.userservice.service;
 import fact.it.userservice.dto.*;
 import fact.it.userservice.model.User;
 import fact.it.userservice.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class UserService {
 
     private final UserRepository userRepository;

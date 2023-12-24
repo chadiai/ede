@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 @Transactional
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findBySkuCodeIn(List<String> skuCode);
+    List<Notification> findByUnread(boolean unread);
 }

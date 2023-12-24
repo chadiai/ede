@@ -1,6 +1,6 @@
 package fact.it.notificationservice.service;
 
-import fact.it.notificationservice.dto.InventoryResponse;
+import fact.it.notificationservice.dto.NotificationResponse;
 import fact.it.notificationservice.model.Notification;
 import fact.it.notificationservice.repository.NotificationRepository;
 import jakarta.annotation.PostConstruct;
@@ -20,12 +20,14 @@ public class NotificationService {
     public void loadData() {
         if(notificationRepository.count() <= 0){
             Notification notification = new Notification();
-            notification.setSkuCode("tube6in");
-            notification.setQuantity(100);
+            notification.setUserId("1");
+            notification.setUnread(false);
+            notification.setMessage("message1");
 
             Notification notification1 = new Notification();
-            notification1.setSkuCode("beam10ft");
-            notification1.setQuantity(0);
+            notification1.setUserId("2");
+            notification1.setUnread(true);
+            notification1.setMessage("message2");
 
             notificationRepository.save(notification);
             notificationRepository.save(notification1);
@@ -33,13 +35,13 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public List<InventoryResponse> isInStock(List<String> skuCode) {
-
-        return notificationRepository.findBySkuCodeIn(skuCode).stream()
+    public List<NotificationResponse> isUnread(boolean bool) {
+        return notificationRepository.findByUnread(bool).stream()
                 .map(notification ->
-                        InventoryResponse.builder()
-                                .skuCode(notification.getSkuCode())
-                                .isInStock(notification.getQuantity() > 0)
+                        NotificationResponse.builder()
+                                .message(notification.getMessage())
+                                .userId(notification.getUserId())
+                                .unread(notification.isUnread())
                                 .build()
                 ).toList();
     }

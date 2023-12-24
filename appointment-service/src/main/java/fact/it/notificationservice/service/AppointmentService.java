@@ -1,12 +1,10 @@
-package fact.it.appointmentservice.service;
+package fact.it.notificationservice.service;
 
-import fact.it.appointmentservice.model.Appointment;
-import fact.it.appointmentservice.repository.AppointmentRepository;
+import fact.it.notificationservice.model.Appointment;
+import fact.it.notificationservice.repository.AppointmentRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +32,7 @@ public class AppointmentService {
         }
     }
 
-    public void createAppointment(fact.it.appointmentservice.dto.AppointmentRequest appointmentRequest){
+    public void createAppointment(fact.it.notificationservice.dto.AppointmentRequest appointmentRequest){
         Appointment appointment = Appointment.builder()
                 .title(appointmentRequest.getTitle())
                 .date(appointmentRequest.getDate())
@@ -44,15 +42,15 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
     }
 
-    public List<fact.it.appointmentservice.dto.AppointmentResponse> getAllAppointments() {
+    public List<fact.it.notificationservice.dto.AppointmentResponse> getAllAppointments() {
         List<Appointment> appointments = appointmentRepository.findAll();
 
         return appointments.stream().map(this::mapToAppointmentResponse).toList();
     }
 
 
-    private fact.it.appointmentservice.dto.AppointmentResponse mapToAppointmentResponse(Appointment appointment) {
-        return fact.it.appointmentservice.dto.AppointmentResponse.builder()
+    private fact.it.notificationservice.dto.AppointmentResponse mapToAppointmentResponse(Appointment appointment) {
+        return fact.it.notificationservice.dto.AppointmentResponse.builder()
                 .id(appointment.getId())
                 .title(appointment.getTitle())
                 .date(appointment.getDate())

@@ -1,20 +1,21 @@
 package fact.it.notificationservice.model;
 
-import lombok.*;
-
 import jakarta.persistence.*;
+import lombok.*;
+import java.util.Date;
 
 @Entity
-@Table(name = "notification")
+@Table(name = "appointment")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification {
+@Builder
+public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String userId;
-    private String message;
-    private boolean unread;
+    private String title;
+    private Date date;
+    private String location;
 }
