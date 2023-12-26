@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8080
 
 logging:
   level:
@@ -12,23 +12,41 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: appointment-service
-          uri: http://${APPOINTMENT_SERVICE_BASEURL:localhost:8080}
+        - id: signin
+          uri: http://${USER_SERVICE_BASEURL:localhost:8081}
+          predicates:
+            - Path=/signin
+          filters:
+            - SetPath=/api/auth/signin
+        - id: user-service-all
+          uri: http://${USER_SERVICE_BASEURL:localhost:8081}
+          predicates:
+            - Path=/admin/users
+          filters:
+            - SetPath=/api/admin/allusers
+        - id: appointment-service-all
+          uri: http://${APPOINTMENT_SERVICE_BASEURL:localhost:8082}
           predicates:
             - Path=/appointments
-            - Method=POST
-          filters:
-            - SetPath=/api/appointment
-        - id: appointment-service-all
-          uri: http://${APPOINTMENT_SERVICE_BASEURL:localhost:8080}
-          predicates:
-            - Path=/appointment
             - Method=GET
           filters:
             - SetPath=/api/appointment/all
-        - id: notification-service
-          uri: http://${NOTIFICATION_SERVICE_BASEURL:localhost:8081}
+        - id: appointment-service
+          uri: http://${APPOINTMENT_SERVICE_BASEURL:localhost:8082}
           predicates:
-            - Path=/notifications
+            - Path=/appointment
+            - Method=POST
           filters:
-            - SetPath=/api/notification
+            - SetPath=/api/appointment
+        - id: message-service-all
+          uri: http://${MESSAGE_SERVICE_BASEURL:localhost:8083}
+          predicates:
+            - Path=/messages
+          filters:
+            - SetPath=/api/message/all
+        - id: message-service-seen
+          uri: http://${MESSAGE_SERVICE_BASEURL:localhost:8083}
+          predicates:
+            - Path=/messages/{isSeen}
+          filters:
+            - SetPath=/api/message/seen/{isSeen}

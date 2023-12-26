@@ -10,7 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
-    private String username;
     private String firstName;
     private String lastName;
     private String password;

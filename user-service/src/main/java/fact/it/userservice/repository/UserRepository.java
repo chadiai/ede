@@ -1,7 +1,13 @@
 package fact.it.userservice.repository;
 
+import fact.it.userservice.model.Role;
 import fact.it.userservice.model.User;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends MongoRepository<User, Long> {
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+
+    User findByRole(Role role);
 }

@@ -10,7 +10,7 @@
         <module name="api-gateway" />
         <module name="user-service" />
         <module name="appointment-service" />
-        <module name="notification-service" />
+        <module name="message-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -24,7 +24,7 @@
       <module name="api-gateway" options="-parameters" />
       <module name="appointment-service" options="-parameters" />
       <module name="inventory-service" options="-parameters" />
-      <module name="notification-service" options="-parameters" />
+      <module name="message-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
       <module name="user-service (1)" options="-parameters" />
       <module name="user-service (2)" options="-parameters" />

@@ -6,6 +6,7 @@ import fact.it.userservice.model.User;
 import fact.it.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,17 +17,14 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-
+    @GetMapping
+    public ResponseEntity<String> sayHello(){
+        return ResponseEntity.ok("Hi user");
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public String createUser(@RequestBody UserRequest userRequest) {
         User result = userService.createUser(userRequest);
         return (result != null ? "User created successfully" : "User creation failed");
-    }
-
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserResponse> getAllUsers() {
-        return userService.getAllUsers();
     }
 }
