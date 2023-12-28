@@ -1,84 +1,84 @@
 services:
- mongo-message:
-  image: mongo:latest
-  ports:
-    - 27017:27017
-  volumes:
-    - mongodb_message_data:/data/db
-    
- mysql-appointment:
-  image: mysql:latest
-  ports:
-    - 3306:3306
-  volumes:
-    - mysql_appointment_data:/var/lib/mysql
-  environment:
-   MYSQL_ROOT_PASSWORD: root123
-    
- mysql-user:
-  image: mysql:latest
-  ports:
-    - 3307:3306
-  volumes:
-    - mysql_user_data:/var/lib/mysql
-  environment:
-   MYSQL_ROOT_PASSWORD: root123
+  mongo-message:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_message_data:/data/db
 
- user-service:
-   depends_on:
-     - mysql-user
-   image: chadiai/user-service
-   ports:
-     - 8081:8081
-   links:
-     - mysql-user
-   environment:
-     MYSQL_DB_USERNAME: root
-     MYSQL_DB_PASSWORD: root123
-     MYSQL_DB_HOST: mysql-user
-     MYSQL_DB_PORT: 3307
+  mysql-appointment:
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_appointment_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
 
- appointment-service:
-  depends_on:
-    - mysql-appointment
-  image: chadiai/appointment-service
-  ports:
-    - 8082:8082
-  links:
-    - mysql-appointment
-  environment:
-    MYSQL_DB_USERNAME: root
-    MYSQL_DB_PASSWORD: root123
-    MYSQL_DB_HOST: mysql-appointment
-    MYSQL_DB_PORT: 3306
+  mysql-user:
+    image: mysql:latest
+    ports:
+      - 3307:3306
+    volumes:
+      - mysql_user_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
 
- message-service:
-   depends_on:
-     - mongo-message
-   image: chadiai/message-service
-   ports:
-     - 8083:8083
-   links:
-     - mongo-message
-   environment:
-     MONGODB_PORT: 27017
-     MONGODB_HOST: mongo-message
+  user-service:
+    depends_on:
+      - mysql-user
+    image: chadiai/user-service
+    ports:
+      - 8083:8083
+    links:
+      - mysql-user
+    environment:
+      MYSQL_DB_USERNAME: root
+      MYSQL_DB_PASSWORD: root123
+      MYSQL_DB_HOST: mysql-user
+      MYSQL_DB_PORT: 3307
 
- api-gateway:
-   depends_on:
-     - appointment-service
-     - message-service
-   image: chadiai/ede-api-gateway
-   ports:
-     - 8080:8080
-   links:
-     - appointment-service
-     - message-service
-   environment:
-     APPOINTMENT_SERVICE_BASEURL: appointment-service:8082
-     MESSAGE_SERVICE_BASEURL: message-service:8083
+  appointment-service:
+    depends_on:
+      - mysql-appointment
+    image: chadiai/appointment-service
+    ports:
+      - 8082:8082
+    links:
+      - mysql-appointment
+    environment:
+      MYSQL_DB_USERNAME: root
+      MYSQL_DB_PASSWORD: root123
+      MYSQL_DB_HOST: mysql-appointment
+      MYSQL_DB_PORT: 3306
+
+  message-service:
+    depends_on:
+      - mongo-message
+    image: chadiai/message-service
+    ports:
+      - 8081:8081
+    links:
+      - mongo-message
+    environment:
+      MONGODB_PORT: 27017
+      MONGODB_HOST: mongo-message
+
+  api-gateway:
+    depends_on:
+      - appointment-service
+      - message-service
+    image: chadiai/ede-api-gateway
+    ports:
+      - 8080:8080
+    links:
+      - appointment-service
+      - message-service
+    environment:
+      APPOINTMENT_SERVICE_BASEURL: appointment-service:8082
+      MESSAGE_SERVICE_BASEURL: message-service:8083
 
 volumes:
- mysql_user_data:
- mysql_appointment_data:
- mongodb_message_data:
+  mysql_user_data:
+  mysql_appointment_data:
+  mongodb_message_data:
