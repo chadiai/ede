@@ -82,7 +82,7 @@ public class MessagesService {
                 .filter(p -> p != senderId)
                 .findFirst()
                 .orElse(-1);
-        kafkaTemplate.send("sentMessage", new MessageSentEvent(senderId,receiverId));
+        kafkaTemplate.send("messageSent", new MessageSentEvent(senderId,receiverId));
     }
 
     private Message mapToMessage(MessageRequest message) {
