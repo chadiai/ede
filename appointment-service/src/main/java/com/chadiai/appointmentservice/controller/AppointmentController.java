@@ -37,7 +37,7 @@ public class AppointmentController {
         appointmentService.deleteAppointment(id);
     }
 
-    @DeleteMapping("/{id}/edit")
+    @PutMapping("/{id}/edit")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editAppointment(@PathVariable int id, @RequestBody EditAppointmentRequest appointmentRequest) {
         appointmentService.editAppointment(id,appointmentRequest);

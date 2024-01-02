@@ -2,17 +2,19 @@ version: '3'
 
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.2
+    image: confluentinc/cp-zookeeper:7.5.3
     container_name: zookeeper
+    ports:
+      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
   broker:
-    image: confluentinc/cp-kafka:7.3.2
+    image: confluentinc/cp-kafka:7.5.3
     container_name: broker
     ports:
-      - 9092:9092
+      - "9092:9092"
     depends_on:
       - zookeeper
     environment:
@@ -27,14 +29,14 @@ services:
   mongo-message:
     image: mongo:latest
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - mongodb_message_data:/data/db
 
   mysql-appointment:
     image: mysql:latest
     ports:
-      - 3307:3307
+      - "3307:3307"
     expose:
       - 3307
     volumes:
@@ -46,7 +48,7 @@ services:
   mysql-user:
     image: mysql:latest
     ports:
-      - 3306:3306
+      - "3306:3306"
     volumes:
       - mysql_user_data:/var/lib/mysql
     environment:
@@ -55,7 +57,7 @@ services:
   service-registry:
     image: chadiai/ede-service-registry
     ports:
-      - 8761:8761
+      - "8761:8761"
 
   user-service:
     depends_on:
@@ -63,7 +65,7 @@ services:
       - service-registry
     image: chadiai/ede-user-service
     ports:
-      - 8083:8083
+      - "8083:8083"
     environment:
       MYSQL_DB_USERNAME: root
       MYSQL_DB_PASSWORD: root123
@@ -77,7 +79,7 @@ services:
       - mysql-appointment
     image: chadiai/ede-appointment-service
     ports:
-      - 8082:8082
+      - "8082:8082"
     links:
       - mysql-appointment
     environment:
@@ -94,7 +96,7 @@ services:
       - broker
     image: chadiai/ede-message-service
     ports:
-      - 8081:8081
+      - "8081:8081"
     environment:
       BROKER_BASEURL: broker:29092
       MONGODB_PORT: 27017
@@ -109,7 +111,7 @@ services:
       - service-registry
     image: chadiai/ede-notification-service
     ports:
-      - 8000:8000
+      - "8000:8000"
     environment:
       BROKER_BASEURL: broker:29092
       EUREKA_BASEURL: service-registry:8761
@@ -119,11 +121,11 @@ services:
       - service-registry
     image: chadiai/ede-api-gateway
     ports:
-      - 8080:8080
+      - "8080:8080"
     environment:
       EUREKA_BASEURL: service-registry:8761
 
 volumes:
   mysql_user_data:
   mysql_appointment_data:
-  mongodb_message_data:
+    mongodb_message_data:
