@@ -1,9 +1,6 @@
 package com.chadiai.messageservice.controller;
-
-import com.chadiai.messageservice.client.UserServiceClient;
+import com.chadiai.messageservice.dto.MessageRequest;
 import com.chadiai.messageservice.dto.MessagesResponse;
-import com.chadiai.messageservice.dto.UserResponse;
-import com.chadiai.messageservice.model.Messages;
 import com.chadiai.messageservice.service.MessagesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,13 +17,18 @@ public class MessagesController {
 
     @Autowired
     private MessagesService messagesService;
-    @Autowired
-    private UserServiceClient userServiceClient;
 
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public List<MessagesResponse> getAllMessages() {
         return messagesService.getAllMessages();
+    }
+
+    @PostMapping("/{senderId}/send")
+    public ResponseEntity<String> createMessage(@PathVariable int senderId, @RequestBody MessageRequest newMessage) {
+        boolean response = messagesService.createMessage(senderId, newMessage);
+        if (!response) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized request: Wrong senderId");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Message sent successfully");
     }
 
     @GetMapping("/auth/{id}")
@@ -53,13 +55,6 @@ public class MessagesController {
                 .findFirst();
 
         return messageOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-
-    @GetMapping("/user/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponse getUserById(@PathVariable int id) {
-        return userServiceClient.fetchUser(id);
     }
 
 }

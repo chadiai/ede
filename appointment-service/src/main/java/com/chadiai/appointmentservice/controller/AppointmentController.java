@@ -2,6 +2,7 @@ package com.chadiai.appointmentservice.controller;
 
 import com.chadiai.appointmentservice.dto.AppointmentRequest;
 import com.chadiai.appointmentservice.dto.AppointmentResponse;
+import com.chadiai.appointmentservice.dto.EditAppointmentRequest;
 import com.chadiai.appointmentservice.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,12 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
 
+    @GetMapping("/all")
+    @ResponseStatus(HttpStatus.OK)
+    public List<AppointmentResponse> getAllAppointments() {
+        return appointmentService.getAllAppointments();
+    }
+
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.OK)
     public void createAppointment
@@ -30,13 +37,19 @@ public class AppointmentController {
         appointmentService.deleteAppointment(id);
     }
 
+    @DeleteMapping("/{id}/edit")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editAppointment(@PathVariable int id, @RequestBody EditAppointmentRequest appointmentRequest) {
+        appointmentService.editAppointment(id,appointmentRequest);
+    }
+
     @GetMapping("/auth/{id}")
     @ResponseStatus(HttpStatus.OK)
     public String getAllAuthAppointments(@PathVariable int id) {
         List<AppointmentResponse> allAppointments = appointmentService.getAllAppointments();
 
         List<AppointmentResponse> filteredAppointments = allAppointments.stream()
-                .filter(appointment -> appointment.getClientId() == id || appointment.getConsultantId() == id)
+                .filter(appointment -> appointment.getInitiatorId() == id)
                 .toList();
 
         return filteredAppointments.stream()
@@ -44,9 +57,9 @@ public class AppointmentController {
                 .collect(Collectors.joining(";"));
     }
 
-    @GetMapping("/all")
+    @GetMapping("/{id}/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<AppointmentResponse> getAllAppointments() {
-        return appointmentService.getAllAppointments();
+    public List<AppointmentResponse> getAllAppointments(@PathVariable int id) {
+        return appointmentService.getAllAppointmentsByUserId(id);
     }
 }

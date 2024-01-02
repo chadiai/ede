@@ -19,6 +19,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Builder.Default
+    private boolean isAdmin = false;
     private String firstName;
     private String lastName;
     private String email;

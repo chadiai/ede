@@ -13,8 +13,8 @@ import java.util.Date;
 @NoArgsConstructor
 public class AppointmentRequest {
     private String title;
-    private int consultantId;
-    private int clientId;
+    private int initiatorId;
+    private int responderId;
     private Date date;
     private Status status;
     private String location;

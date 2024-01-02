@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -40,7 +41,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     return unauthorized(exchange, "Missing authorization header");
                 }
 
-                String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+                String authHeader = Objects.requireNonNull(exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION)).get(0);
                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
                     authHeader = authHeader.substring(7);
                 }
@@ -50,46 +51,103 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 } catch (Exception e) {
                     return unauthorized(exchange, "Unauthorized!");
                 }
+
                 String path = exchange.getRequest().getURI().getPath();
 
-                // Delete appointment check: you can only delete your own appointment
-                // path: appointment/{appointmentId}/delete
-                Pattern appointmentDelete = Pattern.compile("/appointment/\\d+/delete");
-                Matcher matcherDelete = appointmentDelete.matcher(path);
-                if (matcherDelete.find()){
-                    try {
-                        String number = matcherDelete.group().replaceAll("/appointment/(\\d+)/delete", "$1");
-                        String userEmailFromToken = jwtUtil.extractUser(authHeader);
-                        int userId = eurekaService.fetchUserId(userEmailFromToken);
-                        String auths = eurekaService.fetchAuthAppointments(userId);
-                        List<String> authsList = Arrays.asList(auths.split(";")); // all the appointments you can delete
-                        if (authsList.stream().noneMatch(number::contains)) {
-                            return unauthorized(exchange, "Unauthorized access to appointment");
-                        }
-                    } catch (Exception e) {
-                        return unauthorized(exchange, "Unauthorized access to appointment");
-                    }
+                if (!handleAdmin(path, authHeader)) {
+                    return unauthorized(exchange, "Unauthorized: not admin!");
                 }
-                // View messages check: only accessible for participants
-                // path: /messages/m/{messagesId}
-                if (path.contains("/messages/m/")) {
-                    try {
-                        String userEmailFromToken = jwtUtil.extractUser(authHeader);
-                        int userId = eurekaService.fetchUserId(userEmailFromToken);
-                        String auths = eurekaService.fetchAuthMessages(userId);
-                        List<String> authsList = Arrays.asList(auths.split(";"));
-                        if (authsList.stream().noneMatch(path::contains)) {
-                            return unauthorized(exchange, "Unauthorized access to message");
-                        }
-                    } catch (Exception e) {
-                        return unauthorized(exchange, "Unauthorized access to message");
-                    }
+
+                if (!handleMessageSend(path, authHeader)) {
+                    return unauthorized(exchange, "Unauthorized, wrong senderId");
+                }
+
+                if (!handleViewAppointments(path, authHeader)) {
+                    return unauthorized(exchange, "Unauthorized, wrong initiator");
+                }
+
+                if (!handleAppointment(path, authHeader)) {
+                    return unauthorized(exchange, "Unauthorized: user not initiator of appointment");
+                }
+
+                if (!handleViewMessages(path, authHeader)) {
+                    return unauthorized(exchange, "Unauthorized access to message");
                 }
             }
             return chain.filter(exchange);
         });
     }
+    private boolean handleAdmin(String path, String authHeader) {
+        List<String> adminEndpoints = List.of(
+                "/user/",
+                "/appointment/all",
+                "/messages/all"
+        );
+        for (String endpoint : adminEndpoints) {
+            if (path.contains(endpoint)) {
+                String userEmailFromToken = jwtUtil.extractUser(authHeader);
+                return eurekaService.fetchUserFromEmail(userEmailFromToken).isAdmin();
+            }
+        }
+        return true;
+    }
 
+    private boolean checkRequester(String path, String authHeader, Pattern pattern) {
+        Matcher matcher = pattern.matcher(path);
+        if (matcher.find()) {
+            try {
+                int requester = Integer.parseInt(matcher.group(1));
+                String userEmailFromToken = jwtUtil.extractUser(authHeader);
+                int userId = eurekaService.fetchUserFromEmail(userEmailFromToken).getUserId();
+                return userId == requester;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean handleViewAppointments(String path, String authHeader) {
+        Pattern pattern = Pattern.compile("/appointment/(\\d+)/all");
+        return checkRequester(path, authHeader, pattern);
+    }
+    private boolean handleMessageSend(String path, String authHeader) {
+        Pattern pattern = Pattern.compile("/messages/(\\d+)/send");
+        return checkRequester(path, authHeader, pattern);
+    }
+
+    private boolean handleAppointment(String path, String authHeader) {
+        Pattern pattern = Pattern.compile("/appointment/(\\d+)/(delete|edit)");
+        Matcher matcher = pattern.matcher(path);
+        if (matcher.find()) {
+            try {
+                String appointmentId = matcher.group(1);
+                String userEmailFromToken = jwtUtil.extractUser(authHeader);
+                int userId = eurekaService.fetchUserFromEmail(userEmailFromToken).getUserId();
+                String auths = eurekaService.fetchAuthAppointments(userId);
+                List<String> authsList = Arrays.asList(auths.split(";"));
+                return authsList.contains(appointmentId);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean handleViewMessages(String path, String authHeader) {
+        if (path.contains("/messages/m/")) {
+            try {
+                String userEmailFromToken = jwtUtil.extractUser(authHeader);
+                int userId = eurekaService.fetchUserFromEmail(userEmailFromToken).getUserId();
+                String auths = eurekaService.fetchAuthMessages(userId);
+                List<String> authsList = Arrays.asList(auths.split(";"));
+                return authsList.stream().anyMatch(path::contains);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+    }
     private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         exchange.getResponse().getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);

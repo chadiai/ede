@@ -4,6 +4,18 @@ server:
 spring:
   application:
     name: MESSAGE-SERVICE
+  kafka:
+    bootstrap-servers: ${KAFKA_BASEURL:localhost:9092}
+    template:
+      default-topic: messageSent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            type:
+              mapping: event:com.chadiai.messageservice.event.MessageSentEvent
 
 eureka:
   client:

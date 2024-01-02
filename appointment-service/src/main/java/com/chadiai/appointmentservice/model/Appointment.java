@@ -16,8 +16,8 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String title;
-    private int consultantId;
-    private int clientId;
+    private int initiatorId;
+    private int responderId;
     private Date date;
     private Status status;
     private String location;

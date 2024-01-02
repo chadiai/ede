@@ -1,5 +1,6 @@
 package com.chadiai.apigateway.service;
 
+import com.chadiai.apigateway.dto.AuthResponse;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import lombok.RequiredArgsConstructor;
@@ -32,14 +33,14 @@ public class EurekaService {
         return restTemplate.getForObject(endpointUrl, String.class);
     }
 
-    public Integer fetchUserId(String userIdFromToken) {
+    public AuthResponse fetchUserFromEmail(String userEmail) {
         InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka("USER-SERVICE", false);
         if (instanceInfo == null) {
             throw new RuntimeException("USER-SERVICE not found");
         }
         String baseUrl = instanceInfo.getHomePageUrl();
-        String endpointUrl = baseUrl + "user/email/" + userIdFromToken;
+        String endpointUrl = baseUrl + "user/email/" + userEmail;
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(endpointUrl, Integer.class);
+        return restTemplate.getForObject(endpointUrl, AuthResponse.class);
     }
 }
