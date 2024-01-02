@@ -5,7 +5,7 @@ spring:
   application:
     name: MESSAGE-SERVICE
   kafka:
-    bootstrap-servers: ${KAFKA_BASEURL:localhost:9092}
+    bootstrap-servers: broker:29092
     template:
       default-topic: messageSent
     producer:
