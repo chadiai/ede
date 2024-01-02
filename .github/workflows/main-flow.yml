@@ -32,7 +32,7 @@ jobs:
 
   notificationService:
     runs-on: ubuntu-latest
-    name: Java 17 build, test, deliver user-service container
+    name: Java 17 build, test, deliver notification-service container
     steps:
       - name: Check out repository
         uses: actions/checkout@v3

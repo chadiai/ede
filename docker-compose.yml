@@ -68,7 +68,7 @@ services:
     ports:
       - 8000:8000
     environment:
-      KAFKA_BASEURL: broker:9092
+      BROKER_BASEURL: broker:9092
       EUREKA_BASEURL: service-registry:8761
 
   user-service:
@@ -109,6 +109,7 @@ services:
     ports:
       - 8081:8081
     environment:
+      BROKER_BASEURL: broker:9092
       MONGODB_PORT: 27017
       MONGODB_HOST: mongo-message
       EUREKA_BASEURL: service-registry:8761
