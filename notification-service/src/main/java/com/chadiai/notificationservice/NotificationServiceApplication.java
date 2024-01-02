@@ -13,7 +13,7 @@ public class NotificationServiceApplication {
         SpringApplication.run(NotificationServiceApplication.class, args);
     }
 
-    @KafkaListener(topics = "messageSent")
+    @KafkaListener(topics = "messageSent",groupId = "notificationId")
     public void handleNotification(MessageSentEvent messageSentEvent) {
         log.info("UserID:" + messageSentEvent.getSenderId() + " sent a message to UserID:" + messageSentEvent.getReceiverId());
     }
