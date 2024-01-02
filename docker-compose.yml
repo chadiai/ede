@@ -128,4 +128,4 @@ services:
 volumes:
   mysql_user_data:
   mysql_appointment_data:
-    mongodb_message_data:
+  mongodb_message_data:
