@@ -8,7 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MessageSentEvent {
-    private int senderId;
     private int receiverId;
-
 }

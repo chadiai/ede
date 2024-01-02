@@ -15,7 +15,7 @@ public class NotificationServiceApplication {
 
     @KafkaListener(topics = "messageSent",groupId = "notificationId")
     public void handleNotification(MessageSentEvent messageSentEvent) {
-        log.info("UserID:" + messageSentEvent.getSenderId() + " sent a message to UserID:" + messageSentEvent.getReceiverId());
+        log.info("UserID:" + messageSentEvent.getReceiverId() + " has received a new message");
     }
 
 }
